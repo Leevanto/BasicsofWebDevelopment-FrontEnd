@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – College Cache</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-ring"></div>
+
+  <div class="page-wrapper">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-logo">🎒</div>
+      <span class="brand-name">College Cache</span>
+      <span class="brand-sub">Campus Lost &amp; Found</span>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+      <h1 class="card-title">Welcome back</h1>
+      <p class="card-subtitle">Sign in to your campus account to manage your items.</p>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label for="userId">User ID</label>
+        <input
+          type="text"
+          id="userId"
+          name="userId"
+          placeholder="e.g. jsmith@albany.edu"
+          autocomplete="username"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="button" class="btn-submit">Sign In</button>
+
+      <p class="card-footer">
+        Don't have an account?&nbsp;
+        <a href="signup.html">Create one</a>
+      </p>
+    </div>
+
+    <p class="tagline">University of Albany &nbsp;·&nbsp; Spring 2026</p>
+
+  </div>
+
+<script>
+    // Insert alert banner into card after the divider
+    document.querySelector('.divider').insertAdjacentHTML(
+      'afterend',
+      '<div id="alert" class="alert" role="alert" aria-live="polite"></div>'
+    );
+
+    document.querySelector('.btn-submit').addEventListener('click', async () => {
+      const username = document.getElementById('userId').value.trim();
+      const password = document.getElementById('password').value;
+      const alertEl  = document.getElementById('alert');
+      const btn      = document.querySelector('.btn-submit');
+
+      // Reset alert
+      alertEl.className = 'alert';
+      alertEl.textContent = '';
+
+      if (!username || !password) {
+        alertEl.className = 'alert error';
+        alertEl.textContent = 'Please enter your User ID and password.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const response = await fetch('http://localhost:5001/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alertEl.className = 'alert success';
+          alertEl.textContent = data.message;
+        } else {
+          alertEl.className = 'alert error';
+          alertEl.textContent = data.message || 'Login failed. Please try again.';
+        }
+      } catch (err) {
+        alertEl.className = 'alert error';
+        alertEl.textContent = 'Could not reach the server. Is it running?';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.querySelector('.btn-submit').click();
+    });
+  </script>
+
+</body>
+</html>
